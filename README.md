@@ -7,10 +7,11 @@ iu
 ## Seven sinking steps
 
 - An der Karte die Vorzugsrouten und Schulen anzeigen
+  - diese werden aus der Datenbank gelesen
 
 ### Weg aufnehmen und bewerten
 
-- Beim Start cheggen ob in diesem Radius wir drinnen sind
+- Beim Start cheggen ob in diesem Radius wir drinnen sind mit Python
   - Speichern
   - Standort getten und in flask bestätigen
     - Punkte jede tot sekunden sammeln JS
