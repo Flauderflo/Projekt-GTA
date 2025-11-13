@@ -17,20 +17,7 @@ function drawMarkers() {
         });
         appState.markers.addLayer(circle);
 
-        // Draw a line representing current heading
-        if (appState.heading !== null) {
-            let bounds = circle.getBounds();
-            let startPointLat = appState.latLng.lat - (bounds.getCenter().lat - bounds.getSouth()) * Math.cos(appState.heading);
-            let startPointLng = appState.latLng.lng - (bounds.getCenter().lng - bounds.getEast()) * Math.sin(appState.heading);
-            let endPointLat = appState.latLng.lat - (bounds.getCenter().lat - bounds.getSouth()) * 3 * Math.cos(appState.heading);
-            let endPointLng = appState.latLng.lng - (bounds.getCenter().lng - bounds.getEast()) * 3 * Math.sin(appState.heading);
-            
-            LatLngsHeading = [
-                [startPointLat, startPointLng],
-                [endPointLat, endPointLng]
-            ];
-            appState.markers.addLayer(L.polyline(LatLngsHeading, {color: 'rgb(51, 136, 255)'}));
-        }
+        // Draw a line representing current heading    
     }
 }
 
@@ -42,7 +29,7 @@ function geoSuccess(position) {
     let lat = position.coords.latitude;
     let lng = position.coords.longitude;
     appState.latLng = L.latLng(lat, lng);
-    appState.radius = position.coords.accuracyA / 2;
+    appState.radius = position.coords.accuracy / 2;
     drawMarkers();
 
     if (map) {
