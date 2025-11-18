@@ -1,4 +1,4 @@
-let map;
+/*let map;
 let appState = {
   markers: null,
   latLng: null,
@@ -38,32 +38,10 @@ function geoSuccess(position) {
 }
 
 /**
- * Function to be called if there is an error raised by the Geolocation API.
- * @param error Describing the error in more detail.
- */
-function geoError(error) {
-  let errMsg = $("#error-messages");
-  errMsg.text(
-    errMsg.text() +
-      "Fehler beim Abfragen der Position (" +
-      error.code +
-      "): " +
-      error.message +
-      " "
-  );
-  errMsg.show();
-}
-
-let geoOptions = {
-  enableHighAccuracy: true,
-  maximumAge: 15000, // The maximum age of a cached location (15 seconds).
-  timeout: 12000, // A maximum of 12 seconds before timeout.
-};
-
-/**
  * The onload function is called when the HTML has finished loading.
  */
 function onload() {
+  /*
   let errMsg = $("#error-messages");
 
   if ("geolocation" in navigator) {
@@ -90,15 +68,19 @@ function onload() {
     );
     errMsg.show();
   }
+ */
+  loadMap();
+}
 
+function loadMap() {
   map = L.map("map").setView([47.37675, 8.540721], 16);
-  appState.markers = L.layerGroup();
+  markers = L.layerGroup();
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
-  map.addLayer(appState.markers);
+  map.addLayer(markers);
   fetch("data/velovorzugsrouten.json")
     .then((response) => response.json())
     .then((data) => {
@@ -107,6 +89,107 @@ function onload() {
     .catch((error) => {
       console.error("Fehler beim Laden der GeoJSON-Datei:", error);
     });
+  map.addLayer(markers);
+  fetch("data/stzh.poi_volksschule_view.json")
+    .then((response) => response.json())
+    .then((data) => {
+      L.geoJSON(data).addTo(map);
+    })
+    .catch((error) => {
+      console.error("Fehler beim Laden der GeoJSON-Datei:", error);
+    });
+}
+
+let tripActive = false;
+
+/* Start/End Trip Button Logik */
+function toggleTrip() {
+  const btn = document.getElementById("tripBtn");
+
+  if (!tripActive) {
+    tripActive = true;
+    btn.textContent = "End Trip";
+
+    // MECHANISMUS fÜR GPS AUFNEHMEN
+    let track = tracking();
+  } else {
+    tripActive = false;
+    btn.textContent = "Start Trip";
+
+    // GPS STOPPEN
+    stop_tracking();
+    console.log(track);
+    document.getElementById("popupTrip").style.display = "flex";
+  }
+}
+
+let trackState = {
+  track: null,
+  rating: null,
+};
+
+// Absenden und Werte auslesen
+function submitTripRating() {
+  const veloweg =
+    document.querySelector('input[name="veloweg"]:checked')?.value || null;
+
+  let abgetrennt = null;
+  if (veloweg === "ja") {
+    abgetrennt =
+      document.querySelector('input[name="abgetrennt"]:checked')?.value || null;
+  }
+
+  const geschwindigkeit =
+    document.querySelector('input[name="geschwindigkeit"]:checked')?.value ||
+    null;
+  const vieleAmpeln = document.getElementById("q5").value;
+
+  const rating = {
+    veloweg,
+    abgetrennt,
+    geschwindigkeit,
+    vieleAmpeln,
+  };
+
+  let track = {
+    cords: track_cords,
+    rating: rating,
+  };
+  console.log("Trip Rating:", rating);
+  alert("Danke für deine Bewertung!");
+
+  closePopup("popupTrip");
+}
+
+function submitRating() {
+  const veloparkplatz = document.querySelector(
+    'input[name="veloparkplatz"]:checked'
+  )?.value;
+  const wettergeschuetzt = document.querySelector(
+    'input[name="Wettergeschuetzt"]:checked'
+  )?.value;
+  const anschliessen = document.querySelector(
+    'input[name="anschliessen"]:checked'
+  )?.value;
+  const durchfahren = document.querySelector(
+    'input[name="durchfahren"]:checked'
+  )?.value;
+
+  const weitWeg = document.getElementById("q5").value;
+  const vielePlaetze = document.getElementById("q6").value;
+
+  const rating = {
+    veloparkplatz,
+    wettergeschuetzt,
+    anschliessen,
+    durchfahren,
+    weitWeg,
+    vielePlaetze,
+  };
+
+  console.log("Rating:", rating);
+  alert("Danke für deine Bewertung!");
+  closePopup("popupRate");
 }
 
 function tracking() {
@@ -117,6 +200,7 @@ function tracking() {
       geoError,
       geoOptions
     );
+    console.log(new_track, tripActive);
   } else {
     errMsg.text(
       errMsg.text() + "Geolocation is leider auf diesem Gerät nicht verfügbar. "
@@ -124,16 +208,11 @@ function tracking() {
     errMsg.show();
   }
   console.log("fertig GPS Aufzeichung");
+  console.log(track_cords);
   // Mechanismus um die Bewertungen aus dem HTML einzufliessen zu lassen.
-  let track = {
-    cords: track_cords,
-    rating: {
-      sicherheit: 0,
-      ampel: false,
-    },
-  };
-  // export to db
+  return track_cords;
 }
+// export to db
 
 function stop_tracking() {
   navigator.geolocation.clearWatch(new_track);
@@ -144,4 +223,55 @@ function gettingCords(position) {
   let lng = position.coords.longitude;
   num_cords = [lat, lng];
   track_cords.push(num_cords);
+}
+/**
+ * Function to be called if there is an error raised by the Geolocation API.
+ * @param error Describing the error in more detail.
+ */
+function geoError(error) {
+  let errMsg = $("#error-messages");
+  errMsg.text(
+    errMsg.text() +
+      "Fehler beim Abfragen der Position (" +
+      error.code +
+      "): " +
+      error.message +
+      " "
+  );
+  errMsg.show();
+}
+
+let geoOptions = {
+  enableHighAccuracy: true,
+  /*
+  maximumAge: 15000, // The maximum age of a cached location (15 seconds).
+  timeout: 12000, // A maximum of 12 seconds before timeout.*/
+};
+
+/* Rate School Button  UI Funktion*/
+function openRatePopup() {
+  document.getElementById("popupRate").style.display = "flex";
+}
+
+// Toggle Zusatzfrage Veloweg UI Funktion
+function toggleVelowegExtra(show) {
+  const extra = document.getElementById("velowegExtra");
+  if (show) {
+    extra.style.display = "block";
+  } else {
+    extra.style.display = "none";
+    // Auswahl zurücksetzen
+    const radios = extra.querySelectorAll('input[name="abgetrennt"]');
+    radios.forEach((r) => (r.checked = false));
+  }
+}
+
+// Slider-Wert live aktualisieren UI FUNKTION
+function updateValue(spanId, val) {
+  document.getElementById(spanId).textContent = val;
+}
+
+// Popup schließen UI Funktion
+function closePopup(id) {
+  document.getElementById(id).style.display = "none";
 }
