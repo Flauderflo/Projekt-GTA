@@ -1,77 +1,12 @@
-/*let map;
-let appState = {
-  markers: null,
-  latLng: null,
-  radius: null,
-  heading: null,
-};
-
-/**
- * Draws the markers on the map.
- */
-function drawMarkers() {
-  if (map && appState.markers && appState.latLng && appState.radius) {
-    appState.markers.clearLayers();
-    let circle = L.circle(appState.latLng, {
-      radius: appState.radius,
-    });
-    appState.markers.addLayer(circle);
-
-    // Draw a line representing current heading
-  }
-}
-
-/**
- * Function to be called whenever a new position is available.
- * @param position The new position.
- */
-function geoSuccess(position) {
-  let lat = position.coords.latitude;
-  let lng = position.coords.longitude;
-  appState.latLng = L.latLng(lat, lng);
-  appState.radius = position.coords.accuracy / 2;
-  drawMarkers();
-
-  if (map) {
-    map.setView(appState.latLng);
-  }
-}
-
 /**
  * The onload function is called when the HTML has finished loading.
  */
 function onload() {
-  /*
-  let errMsg = $("#error-messages");
-
-  if ("geolocation" in navigator) {
-    navigator.geolocation.watchPosition(geoSuccess, geoError, geoOptions);
-  } else {
-    errMsg.text(
-      errMsg.text() + "Geolocation is leider auf diesem Gerät nicht verfügbar. "
-    );
-    errMsg.show();
-  }
-
-  if (window.DeviceOrientationEvent) {
-    window.addEventListener(
-      "deviceorientation",
-      function (eventData) {
-        appState.heading = eventData.alpha * (Math.PI / 180);
-        drawMarkers();
-      },
-      false
-    );
-  } else {
-    errMsg.text(
-      errMsg.text() + "DeviceOrientation ist leider nicht verfügbar. "
-    );
-    errMsg.show();
-  }
- */
   loadMap();
 }
-
+/**
+ * loads the Map on the background
+ */
 function loadMap() {
   map = L.map("map").setView([47.37675, 8.540721], 16);
   markers = L.layerGroup();
@@ -100,9 +35,20 @@ function loadMap() {
     });
 }
 
+/**
+ * Alles was für die GPS Track Aufzeichnung notwendig ist.
+ * und anschliessend um den Track zu Bewerten und abschicken
+ *
+ */
 let tripActive = false;
 let watchID = null;
 let track_cords = [];
+let geoOptions = {
+  enableHighAccuracy: true,
+  /*
+  maximumAge: 15000, // The maximum age of a cached location (15 seconds).
+  timeout: 12000, // A maximum of 12 seconds before timeout.*/
+};
 
 let trackState = {
   track: null,
@@ -122,24 +68,75 @@ function toggleTrip() {
     //START
     tripActive = true;
     btn.textContent = "End Trip";
-
     // MECHANISMUS fÜR GPS AUFNEHMEN
     start_tracking();
   } else {
     //STOP
     tripActive = false;
     btn.textContent = "Start Trip";
-
     // GPS STOPPEN
     stop_tracking();
+    // Objekt beschreiben
     console.log(track_cords);
     track.coords = track_cords;
     trackState.track = track;
+    // Bewertung einleiten
     document.getElementById("popupTrip").style.display = "flex";
   }
 }
 
-// Absenden und Werte auslesen
+function start_tracking() {
+  track_cords = [];
+  if ("geolocation" in navigator) {
+    track.start_time = new Date();
+    watchID = navigator.geolocation.watchPosition(
+      gettingCords,
+      geoError,
+      geoOptions
+    );
+    console.log(watchID, tripActive);
+  } else {
+    console.error("Geolocation nicht verfügbar");
+  }
+}
+
+function stop_tracking() {
+  if (watchID !== null) {
+    navigator.geolocation.clearWatch(watchID);
+    track.end_time = new Date();
+    console.log("Tracking gestoppt:", watchID);
+    watchID = null;
+  }
+}
+
+/**
+ * Function to be called whenever a new position is available.
+ * @param position The new position.
+ */
+function gettingCords(position) {
+  let lat = position.coords.latitude;
+  let lng = position.coords.longitude;
+  num_cords = [lat, lng];
+  track_cords.push(num_cords);
+}
+
+/**
+ * Function to be called if there is an error raised by the Geolocation API.
+ * @param error Describing the error in more detail.
+ */
+function geoError(error) {
+  console.log(
+    "Fehler beim Abfragen der Position (" +
+      error.code +
+      "): " +
+      error.message +
+      " "
+  );
+}
+
+/**
+ * Bewertungen von Tracks und POIs
+ */
 function submitTripRating() {
   const veloweg =
     document.querySelector('input[name="veloweg"]:checked')?.value || null;
@@ -200,69 +197,19 @@ function submitRating() {
   closePopup("popupRate");
 }
 
-function start_tracking() {
-  track_cords = [];
-
-  if ("geolocation" in navigator) {
-    track.start_time = new Date();
-    watchID = navigator.geolocation.watchPosition(
-      gettingCords,
-      geoError,
-      geoOptions
-    );
-    console.log(watchID, tripActive);
-  } else {
-    console.error("Geolocation nicht verfügbar");
-  }
-
-  // Mechanismus um die Bewertungen aus dem HTML einzufliessen zu lassen.
-}
-// export to db
-
-function stop_tracking() {
-  if (watchID !== null) {
-    navigator.geolocation.clearWatch(watchID);
-    track.end_time = new Date();
-    console.log("Tracking gestoppt:", watchID);
-    watchID = null;
-  }
-}
-
-function gettingCords(position) {
-  let lat = position.coords.latitude;
-  let lng = position.coords.longitude;
-  num_cords = [lat, lng];
-  track_cords.push(num_cords);
-}
 /**
- * Function to be called if there is an error raised by the Geolocation API.
- * @param error Describing the error in more detail.
+ * TODO:
+ * EXPORT TO DB
  */
-function geoError(error) {
-  let errMsg = $("#error-messages");
-  errMsg.text(
-    errMsg.text() +
-      "Fehler beim Abfragen der Position (" +
-      error.code +
-      "): " +
-      error.message +
-      " "
-  );
-  errMsg.show();
-}
 
-let geoOptions = {
-  enableHighAccuracy: true,
-  /*
-  maximumAge: 15000, // The maximum age of a cached location (15 seconds).
-  timeout: 12000, // A maximum of 12 seconds before timeout.*/
-};
+/**
+ * UI Funktioen
+ */
 
-/* Rate School Button  UI Funktion*/
+// Rate School Button  UI Funktion
 function openRatePopup() {
   document.getElementById("popupRate").style.display = "flex";
 }
-
 // Toggle Zusatzfrage Veloweg UI Funktion
 function toggleVelowegExtra(show) {
   const extra = document.getElementById("velowegExtra");
@@ -275,12 +222,10 @@ function toggleVelowegExtra(show) {
     radios.forEach((r) => (r.checked = false));
   }
 }
-
-// Slider-Wert live aktualisieren UI FUNKTION
+// Slider-Wert live aktualisieren UI Funktion
 function updateValue(spanId, val) {
   document.getElementById(spanId).textContent = val;
 }
-
 // Popup schließen UI Funktion
 function closePopup(id) {
   document.getElementById(id).style.display = "none";
