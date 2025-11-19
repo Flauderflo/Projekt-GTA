@@ -101,32 +101,43 @@ function loadMap() {
 }
 
 let tripActive = false;
+let watchID = null;
+let track_cords = [];
+
+let trackState = {
+  track: null,
+  rating: null,
+};
+let track = {
+  coords: null,
+  start_time: null,
+  end_time: null,
+};
 
 /* Start/End Trip Button Logik */
 function toggleTrip() {
   const btn = document.getElementById("tripBtn");
 
   if (!tripActive) {
+    //START
     tripActive = true;
     btn.textContent = "End Trip";
 
     // MECHANISMUS fÜR GPS AUFNEHMEN
-    let track = tracking();
+    start_tracking();
   } else {
+    //STOP
     tripActive = false;
     btn.textContent = "Start Trip";
 
     // GPS STOPPEN
     stop_tracking();
-    console.log(track);
+    console.log(track_cords);
+    track.coords = track_cords;
+    trackState.track = track;
     document.getElementById("popupTrip").style.display = "flex";
   }
 }
-
-let trackState = {
-  track: null,
-  rating: null,
-};
 
 // Absenden und Werte auslesen
 function submitTripRating() {
@@ -151,13 +162,10 @@ function submitTripRating() {
     vieleAmpeln,
   };
 
-  let track = {
-    cords: track_cords,
-    rating: rating,
-  };
   console.log("Trip Rating:", rating);
+  trackState.rating = rating;
   alert("Danke für deine Bewertung!");
-
+  console.log(trackState);
   closePopup("popupTrip");
 }
 
@@ -192,30 +200,32 @@ function submitRating() {
   closePopup("popupRate");
 }
 
-function tracking() {
+function start_tracking() {
   track_cords = [];
+
   if ("geolocation" in navigator) {
-    new_track = navigator.geolocation.watchPosition(
+    track.start_time = new Date();
+    watchID = navigator.geolocation.watchPosition(
       gettingCords,
       geoError,
       geoOptions
     );
-    console.log(new_track, tripActive);
+    console.log(watchID, tripActive);
   } else {
-    errMsg.text(
-      errMsg.text() + "Geolocation is leider auf diesem Gerät nicht verfügbar. "
-    );
-    errMsg.show();
+    console.error("Geolocation nicht verfügbar");
   }
-  console.log("fertig GPS Aufzeichung");
-  console.log(track_cords);
+
   // Mechanismus um die Bewertungen aus dem HTML einzufliessen zu lassen.
-  return track_cords;
 }
 // export to db
 
 function stop_tracking() {
-  navigator.geolocation.clearWatch(new_track);
+  if (watchID !== null) {
+    navigator.geolocation.clearWatch(watchID);
+    track.end_time = new Date();
+    console.log("Tracking gestoppt:", watchID);
+    watchID = null;
+  }
 }
 
 function gettingCords(position) {
