@@ -31,3 +31,4 @@ iu
 - schule bewerten soll nur erscheinen wenn in nähe von einer Schule
 - 3 optionen beim bewerten popup: weiter tracken, bewerten, abbrechen
 - live Position soll angezeigt werden sowie aktuell am aufzeichnende Trajektorie soll live aktualisiert werden
+- Slider sollen intuitiver sein und alles in der selben sprache
