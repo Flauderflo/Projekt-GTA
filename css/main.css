@@ -157,6 +157,13 @@ footer {
   border: none;
   color: white;
 }
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
 
 .btn-gray {
   background: #666;
@@ -286,6 +293,7 @@ footer {
     width: 80%;
     padding: 20px;
   }
+}
 /* =======================
    Legende
    ======================= */
@@ -308,4 +316,5 @@ footer {
   background: #4789ff;
   border-radius: 2px;
   margin-right: 10px;
+  flex-shrink: 0;
 }

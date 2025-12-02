@@ -131,7 +131,10 @@
             id="velostreifen"
             oninput="updateValue('abgetrennt', this.value)"
           />
-          <span id="abgetrennt">3</span>
+          <div class="slider-labels">
+            <span>schlecht</span>
+            <span>gut</span>
+          </div>
         </div>
         <!-- Container für zusätzliche Option -->
         <div
@@ -141,7 +144,7 @@
         ></div>
 
         <div class="question">
-          <label>Viele Ampeln? (1: keine, 5: viele)</label>
+          <label>Viele Ampeln?</label>
           <input
             type="range"
             min="1"
@@ -150,11 +153,14 @@
             id="ampel"
             oninput="updateValue('Ampeln', this.value)"
           />
-          <span id="Ampeln">3</span>
+          <div class="slider-labels">
+            <span>wenig</span>
+            <span>viel</span>
+          </div>
         </div>
         <div class="question">
           <label
-            >Wie gross ist das Verkehrsaufkommen (1: keine, 5: viele)</label
+            >Wie gross ist das Verkehrsaufkommen</label
           >
           <input
             type="range"
@@ -164,7 +170,10 @@
             id="aufkommen"
             oninput="updateValue('Verkehrsaufkommen', this.value)"
           />
-          <span id="Verkehrsaufkommen">3</span>
+          <div class="slider-labels">
+            <span>klein</span>
+            <span>gross</span>
+          </div>
         </div>
 
         <div class="trip-buttons">
@@ -223,15 +232,27 @@
           <div class="question">
             <label>Findest du den Parkplatz benutzerfreundlich?</label>
             <input type="range" min="1" max="5" value="3" id="qualitaet" />
+            <div class="slider-labels">
+            <span>schlecht</span>
+            <span>gut</span>
+          </div>
           </div>
           <div class="question">
             <label>Hat es viele Parkplätze?</label>
             <input type="range" min="1" max="5" value="3" id="anzahl" />
+            <div class="slider-labels">
+            <span>wenig</span>
+            <span>viel</span>
+          </div>
           </div>
 
           <div class="question">
             <label>Wie gut ist der Parkplatz von der Strasse erreichbar?</label>
             <input type="range" min="1" max="5" value="3" id="ErreichbarStra" />
+            <div class="slider-labels">
+            <span>schlecht</span>
+            <span>gut</span>
+          </div>
           </div>
 
           <div class="question">
@@ -239,6 +260,10 @@
               >Wie gut ist der Schuleingang vom Parkplatz erreichbar?</label
             >
             <input type="range" min="1" max="5" value="3" id="ErreichbarSchu" />
+            <div class="slider-labels">
+            <span>schlecht</span>
+            <span>gut</span>
+          </div>
           </div>
         </div>
 
