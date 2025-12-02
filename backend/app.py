@@ -1,7 +1,13 @@
 import numpy as np
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+import os
+import json
+from sqlalchemy import create_engine
+import psycopg2
 
 # import pyproj
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
@@ -26,14 +32,32 @@ if __name__ == "__main__":
     # run
     app.run(debug=True, host="localhost", port=8989)
 
-import pandas as pd
-import os
-import json
-from sqlalchemy import create_engine
-import psycopg2
 
 DBLOGIN_FILE = os.path.join("db_login.json")
 
+def match_trip(trips: gpd.GeoDataFrame, schools: gpd.GeoDataFrame, routes: gpd.GeoDataFrame):
+
+    # Start- und Endpunkt erzeugen (falls trips LineStrings sind)
+    trips = trips.copy()
+    trips["start"] = trips.geometry.apply(lambda geom: Point(geom.coords[0]))
+    trips["end"]   = trips.geometry.apply(lambda geom: Point(geom.coords[-1]))
+
+    # GeoDataFrames für Start/Endpunkt erzeugen
+    start_gdf = gpd.GeoDataFrame(trips.drop(columns="geometry"), geometry="start", crs=trips.crs)
+    end_gdf = gpd.GeoDataFrame(trips.drop(columns="geometry"), geometry="end", crs=trips.crs)
+
+    # Schulen an Endpunkt matchen
+    trips_with_school = gpd.sjoin_nearest(end_gdf, schools,how="left",distance_col="dist_to_school")
+
+    # Routen an Startpunkt matchen
+    trips_with_route = gpd.sjoin_nearest(start_gdf, routes,how="left", distance_col="dist_to_route")
+
+    # Beide Ergebnisse wieder mergen (über Index)
+    result = trips.copy()
+    result = result.join(trips_with_school.filter(like="_right"), rsuffix="_school")
+    result = result.join(trips_with_route.filter(like="_right"), rsuffix="_route")
+
+    return result
 
 # SOLUTION TASK 4
 def get_mean_value_from_table(col_name):
@@ -57,8 +81,9 @@ def get_mean_value_from_table(col_name):
     table_schulen = pd.read_sql(f"SELECT {col_name} FROM gta25_g3.schule", engine)
     table_routen = pd.read_sql(f"SELECT {col_name} FROM gta25_g3.velovorzugslinien", engine)
     # compute mean
-    table_one_column["route"] = table_one_column[col_name].route_finden()
-    table_one_column["end_schule"] = table_one_column[col_name].schule_finden
+    trip = match_trip(table_one_column, table_schulen, table_routen)
 
     # write new data in db
-    return table_one_column
+    return trip
+
+
