@@ -42,9 +42,12 @@ function loadMap() {
  */
 let tripActive = false;
 let watchID = null;
+let liveMarker = null;
+let trackPolyline = null;
 let track_cords = [];
 let geoOptions = {
   enableHighAccuracy: true,
+
   /*
   maximumAge: 15000, // The maximum age of a cached location (15 seconds).
   timeout: 12000, // A maximum of 12 seconds before timeout.*/
@@ -82,7 +85,7 @@ function toggleTrip() {
   } else {
     //STOP
     tripActive = false;
-    btn.textContent = "Start Trip";
+    btn.textContent = "Aufzeichnen";
     btn.style.backgroundColor = '#00bcff';
     // GPS STOPPEN
     stop_tracking();
@@ -97,6 +100,17 @@ function toggleTrip() {
 
 function start_tracking() {
   track_cords = [];
+
+  // Polyline & Marker zurücksetzen
+  if (trackPolyline) {
+    map.removeLayer(trackPolyline);
+    trackPolyline = null;
+  }
+  if (liveMarker) {
+    map.removeLayer(liveMarker);
+    liveMarker = null;
+  }
+
   if ("geolocation" in navigator) {
     track.start_time = new Date().toISOString();
     console.log(track.start_time);
@@ -130,8 +144,25 @@ function stop_tracking() {
 function gettingCords(position) {
   let lat = position.coords.latitude;
   let lng = position.coords.longitude;
-  num_cords = [lat, lng];
-  track_cords.push(num_cords);
+  let latlng = [lat, lng];
+
+  track_cords.push(latlng);
+  
+  if (!trackPolyline) {
+      trackPolyline = L.polyline(track_cords, { color: "#4789ff", weight: 5 })
+        .addTo(map);
+    } else {
+      // Linie live aktualisieren
+      trackPolyline.setLatLngs(track_cords);
+  }
+
+  if (!liveMarker) {
+    liveMarker = L.marker(latlng).addTo(map);
+    // map.setView(latlng, 17); // optional: zentriert beim Start
+  } else {
+    liveMarker.setLatLng(latlng);
+  }
+
 }
 
 /**
