@@ -5,6 +5,11 @@ import geopandas as gpd
 def zeugs():
    return
 
+# Hilfsfunktion zur MinMax-Normalisierung
+def normalize(series):
+    if series.max() == series.min():
+        return 1  # verhindert Division durch 0
+    return (series - series.min()) / (series.max() - series.min())
 
 def rating_school(school: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
@@ -16,13 +21,6 @@ def rating_school(school: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
 
     school = school.copy()
-
-    # Hilfsfunktion zur MinMax-Normalisierung
-    def normalize(series):
-        if series.max() == series.min():
-            return 1  # verhindert Division durch 0
-        return (series - series.min()) / (series.max() - series.min())
-
     # Liste der Bewertungsfelder
     fields = [
         "velo_ppq",
@@ -57,6 +55,6 @@ def rating_school(school: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return school
 
 
-def rating_trip(trip: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+'''def rating_trip(trip: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     trip["score"] = None
-    return trip
+    return trip'''
