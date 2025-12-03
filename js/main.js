@@ -79,14 +79,14 @@ function toggleTrip() {
     //START
     tripActive = true;
     btn.textContent = "Beenden";
-    btn.style.backgroundColor = 'red';
+    btn.style.backgroundColor = "red";
     // MECHANISMUS fÜR GPS AUFNEHMEN
     start_tracking();
   } else {
     //STOP
     tripActive = false;
     btn.textContent = "Aufzeichnen";
-    btn.style.backgroundColor = '#00bcff';
+    btn.style.backgroundColor = "#00bcff";
     // GPS STOPPEN
     stop_tracking();
     // Objekt beschreiben
@@ -147,22 +147,23 @@ function gettingCords(position) {
   let latlng = [lat, lng];
 
   track_cords.push(latlng);
-  
+
   if (!trackPolyline) {
-      trackPolyline = L.polyline(track_cords, { color: "#4789ff", weight: 5 })
-        .addTo(map);
-    } else {
-      // Linie live aktualisieren
-      trackPolyline.setLatLngs(track_cords);
+    trackPolyline = L.polyline(track_cords, {
+      color: "#4789ff",
+      weight: 5,
+    }).addTo(map);
+  } else {
+    // Linie live aktualisieren
+    trackPolyline.setLatLngs(track_cords);
   }
 
   if (!liveMarker) {
     liveMarker = L.marker(latlng).addTo(map);
-    // map.setView(latlng, 17); // optional: zentriert beim Start
+    map.setView(latlng, 17); // optional: zentriert beim Start
   } else {
     liveMarker.setLatLng(latlng);
   }
-
 }
 
 /**
