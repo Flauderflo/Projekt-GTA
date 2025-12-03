@@ -84,6 +84,7 @@ footer {
 
 .infusr-pb-button:hover {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.28);
+  background: #00a1e6;
 }
 
 /* Position der Buttons */
@@ -132,7 +133,9 @@ footer {
   border-radius: 8px;
   cursor: pointer;
 }
-
+.popup-content button:hover {
+  background: #00a1e6;
+}
 /* Fragen und Inputs */
 .question {
   margin: 5px 0;
@@ -231,7 +234,7 @@ footer {
 }
 
 .info-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(183, 230, 241, 0.2);
 }
 
 /* =======================
