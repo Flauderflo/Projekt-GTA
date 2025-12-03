@@ -91,6 +91,10 @@ function toggleTrip() {
     stop_tracking();
     // Objekt beschreiben
     console.log(track_cords);
+    if (track_cords.length == 1) {
+      alert("Die Aufzeichnung war zu kurz. Versuche es nochmals länger!");
+      return;
+    }
     track.coords = track_cords;
     trackState.track = track;
     // Bewertung einleiten
@@ -129,7 +133,9 @@ function start_tracking() {
 function stop_tracking() {
   if (watchID !== null) {
     navigator.geolocation.clearWatch(watchID);
-
+    if (track_cords.length < 2) {
+      track_cords.push(track_cords[0]);
+    }
     track.end_time = new Date().toISOString();
     console.log(track.end_time);
     console.log("Tracking gestoppt:", watchID);
