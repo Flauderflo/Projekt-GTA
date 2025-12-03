@@ -76,18 +76,22 @@ function toggleTrip() {
     //START
     tripActive = true;
     btn.textContent = "Beenden";
-    btn.style.backgroundColor = 'red';
+    btn.style.backgroundColor = "red";
     // MECHANISMUS fÜR GPS AUFNEHMEN
     start_tracking();
   } else {
     //STOP
     tripActive = false;
     btn.textContent = "Start Trip";
-    btn.style.backgroundColor = '#00bcff';
+    btn.style.backgroundColor = "#00bcff";
     // GPS STOPPEN
     stop_tracking();
     // Objekt beschreiben
     console.log(track_cords);
+    if (track_cords.length == 1) {
+      alert("Die Aufzeichnung war zu kurz. Versuche es nochmals länger!");
+      return;
+    }
     track.coords = track_cords;
     trackState.track = track;
     // Bewertung einleiten
@@ -115,7 +119,9 @@ function start_tracking() {
 function stop_tracking() {
   if (watchID !== null) {
     navigator.geolocation.clearWatch(watchID);
-
+    if (track_cords.length < 2) {
+      track_cords.push(track_cords[0]);
+    }
     track.end_time = new Date().toISOString();
     console.log(track.end_time);
     console.log("Tracking gestoppt:", watchID);
