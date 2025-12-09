@@ -105,16 +105,7 @@ function toggleTrip() {
 function start_tracking() {
   track_cords = [];
 
-  // Polyline & Marker zurücksetzen
-  if (trackPolyline) {
-    map.removeLayer(trackPolyline);
-    trackPolyline = null;
-  }
-  if (liveMarker) {
-    map.removeLayer(liveMarker);
-    liveMarker = null;
-  }
-
+  stopLivePos();
   if ("geolocation" in navigator) {
     track.start_time = new Date().toISOString();
     console.log(track.start_time);
@@ -153,29 +144,7 @@ function gettingCords(position) {
   let latlng = [lat, lng];
 
   track_cords.push(latlng);
-
-  if (!trackPolyline) {
-    trackPolyline = L.polyline(track_cords, {
-      color: "#4789ff",
-      weight: 5,
-    }).addTo(map);
-  } else {
-    // Linie live aktualisieren
-    trackPolyline.setLatLngs(track_cords);
-  }
-
-  if (!liveMarker) {
-    liveMarker = L.circleMarker(latlng, {
-    radius: 6,          // Größe des Kreises
-    color: "#ff0000",   // Randfarbe
-    fillColor: "#ff0000", // Füllfarbe
-    fillOpacity: 0.8    // Transparenz
-  }).addTo(map);
-
-  map.setView(latlng, 17); // optional: Karte zentrieren
-  } else {
-  liveMarker.setLatLng(latlng);
-  }
+  startLivePos(latlng);
 }
 
 /**
@@ -220,6 +189,7 @@ function submitTripRating() {
   trackState.rating = rating;
   console.log(trackState);
   insertPoint(); // hier gehts dann weiter mit auf die DB laden
+  stopLivePos();
   closePopup("popupTrip");
 }
 
@@ -456,6 +426,7 @@ function continueTracking() {
 // Popup abbrechen (ohne Bewertung, ohne Tracking)
 function cancelTripPopup() {
   document.getElementById("popupTrip").style.display = "none";
+  stopLivePos();
   console.log("Trip-Bewertung abgebrochen.");
 }
 
@@ -472,4 +443,43 @@ function closeIntroPopup() {
 // Popup schließen UI Funktion
 function closePopup(id) {
   document.getElementById(id).style.display = "none";
+}
+function startLivePos(latlng) {
+  if (!trackPolyline) {
+    trackPolyline = L.polyline(track_cords, {
+      color: "#4789ff",
+      weight: 5,
+    }).addTo(map);
+    console.log(track_cords);
+  } else {
+    // Linie live aktualisieren
+    trackPolyline.setLatLngs(track_cords);
+    console.log(track_cords);
+  }
+
+  if (!liveMarker) {
+    liveMarker = L.circleMarker(latlng, {
+      radius: 6, // Größe des Kreises
+      color: "#ff0000", // Randfarbe
+      fillColor: "#ff0000", // Füllfarbe
+      fillOpacity: 0, // Transparenz
+    }).addTo(map);
+
+    map.setView(latlng, 17); // optional: Karte zentrieren
+    console.log(latlng);
+  } else {
+    liveMarker.setLatLng(latlng);
+    console.log(latlng);
+  }
+}
+function stopLivePos() {
+  // Polyline & Marker zurücksetzen
+  if (trackPolyline) {
+    map.removeLayer(trackPolyline);
+    trackPolyline = null;
+  }
+  if (liveMarker) {
+    map.removeLayer(liveMarker);
+    liveMarker = null;
+  }
 }
