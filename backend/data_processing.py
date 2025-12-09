@@ -24,14 +24,14 @@ def match_trip(trips: gpd.GeoDataFrame, schools: gpd.GeoDataFrame, routes: gpd.G
     trips["end"]   = trips.geometry.apply(lambda geom: Point(geom.coords[-1]))
 
     # GeoDataFrames für Start/Endpunkt erzeugen
-    start_gdf = gpd.GeoDataFrame(trips.drop(columns="geometry"), geometry="start", crs=trips.crs)
-    end_gdf = gpd.GeoDataFrame(trips.drop(columns="geometry"), geometry="end", crs=trips.crs)
+    start_gdf = gpd.GeoDataFrame(trips.drop(columns="gps"), geometry="start", crs=trips.crs)
+    end_gdf = gpd.GeoDataFrame(trips.drop(columns="gps"), geometry="end", crs=trips.crs)
 
     # Schulen an Endpunkt matchen
-    trips_with_school = gpd.sjoin_nearest(end_gdf, schools,how="left",distance_col="dist_to_school")
+    trips_with_school = gpd.sjoin_nearest(end_gdf, schools, how="left")
 
     # Routen an Startpunkt matchen
-    trips_with_route = gpd.sjoin_nearest(start_gdf, routes,how="left", distance_col="dist_to_route")
+    trips_with_route = gpd.sjoin_nearest(start_gdf, routes, how="left")
 
     # Beide Ergebnisse wieder mergen (über Index)
     result = trips.copy()

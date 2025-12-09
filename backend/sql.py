@@ -46,11 +46,15 @@ def write(gdf: gpd.GeoDataFrame, table: str):
     conn = psycopg2.connect(**get_db_credentials())
     cur = conn.cursor()
 
-    write_schools = f"UPDATE gta25_g3.schule SET score = {gdf['score']};"
+    
+    write_schools = "UPDATE gta25_g3.schule SET score = %s WHERE id = %s;"
     write_trips = "UPDATE gta25_g3.trajektorien;"
 
     if table == "schule":
-        cur.execute(write_schools)
+        score = float(gdf['score'].iloc[0])
+        id = int(gdf['id_right'].iloc[0])
+        cur.execute(write_schools, (score, id))
+
     elif table == "trajektorien":
         cur.execute(write_trips)
     else:

@@ -22,7 +22,8 @@ trajektorien = gdfs["trajektorien"]
 velovorzugslinien  = gdfs["velovorzugslinien"]
 bewertung = gdfs["bewertung"]
 
-matched_schools = match_school(bewertung, schule)
-rated_schools = rating_school(matched_schools)
-print(rated_schools.head())
-#sql.write(rated_schools, "schule")
+matched_trips = match_trip(trajektorien, schule, velovorzugslinien)
+
+#print(matched_trips.head())
+print(matched_trips.columns)
+#sql.write(matched_trips, "trajektorien")
