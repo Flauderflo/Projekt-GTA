@@ -219,7 +219,7 @@ function gettingSchoolRating(position) {
   };
   let lat = position.coords.latitude;
   let lng = position.coords.longitude;
-  let coords = [lat, lng];
+  let coords = [lng, lat];
   let veloparkplatz = document.querySelector(
     'input[name="veloparkplatz"]:checked'
   )?.value;
