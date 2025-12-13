@@ -1,0 +1,4 @@
+**/__pycache__/
+backend/__pycache__/analüse.cpython-311.pyc
+backend/__pycache__/data_processing.cpython-311.pyc
+backend/__pycache__/sql.cpython-311.pyc
