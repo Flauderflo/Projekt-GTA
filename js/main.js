@@ -509,16 +509,23 @@ function loadMap() {
     layers: "GTA25_project:schule",
     format: "image/png",
     transparent: true,
+    styles: "schulenG3",
   });
   let glattalnetz = L.tileLayer.wms(wms, {
     layers: "GTA25_project:glattalnetz",
     format: "image/png",
     transparent: true,
   });
+  let trajektorien = L.tileLayer.wms(wms, {
+    layers: "GTA25_project:trajektorien99",
+    format: "image/png",
+    transparent: true,
+    styles: "trajektorieG3",
+  });
 
   let overlays = {
-    "Vorzugsrouten Nord": glattalnetz,
-    "Schulen mit Rating": scools,
+    "Bewertung der Schulen": scools,
+    "Bewertete Trajektorien": trajektorien,
   };
   const layerControl = L.control.layers(null, overlays);
 
